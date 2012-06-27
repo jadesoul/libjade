@@ -4,4 +4,4 @@ libjade
 jadesoul's python utils library
 
 new test
-git is nice
+aha, git is nice
