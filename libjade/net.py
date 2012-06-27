@@ -4,6 +4,7 @@ import sys, urllib, urllib2, re, socket
 
 re_host=re.compile("^(http|https|ftp)://(([\w\-]+\.)+[\w\-]+|localhost)/?")
 
+#
 def get_host_name():
 	return socket.gethostname()
 

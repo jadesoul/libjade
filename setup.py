@@ -14,3 +14,4 @@ setup(
       packages=['libjade'],
 	  scripts=['scripts/'+i for i in listdir('scripts')],
 )
+

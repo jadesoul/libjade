@@ -1,44 +1,41 @@
 #coding:utf8
 
-import sqlite3
-import sys
+import MySQLdb as _mysql
+import sqlite3 as _sqllite
+#import pymssql as _mssql
 
-'''
-base class of all db class
+from DBUtils.PooledDB import PooledDB as pooled
 
-Created on 2010-11-23
-@author: jadesoul
-'''
 
-class base(object):
-	'''  base class of all db class '''
-
-	def __init__(self):
-		''' Constructor '''
-		self.conn=None
-		self.cursor=None
-		raise Exception('not defined')
+class db_base:
 	
+	self.conn=None
+	self.cursor=None
+
 	def connect(self):
 		'connect to the host'
-		raise Exception('not defined')
+		raise NotImplementedError
 	
 	def close(self):
 		'close the connection'
-		raise Exception('not defined')
-		
+		raise NotImplementedError
+
+	def refresh(self):
+		self.close()
+		self.connect()
+	
+	def get_connection(self):
+		'a proxy to get connection, useful for pooling connection implementation'
+		return self.conn	
+	
 	def get_cursor(self):
 		'get nomal cursor, fields accessed by number, faster'
-		raise Exception('not defined')
+		raise NotImplementedError
 	
 	def get_dict_cursor(self):
 		'get dict cursor, fields accessed by name, slower'
-		raise Exception('not defined')
+		raise NotImplementedError
 
-	def check_conn(self):
-		'make sure is connected'
-		if not self.conn: self.connect()
-		
 	def run(self, sql):
 		cursor=self.get_cursor()
 		cursor.execute(sql)
@@ -122,33 +119,37 @@ class base(object):
 		cursor.close()
 		return rows
 	
+class pooled_base:
 	
-class sqllite(base):
+	self.pool=None
+	self.max_conn_cnt=0
+
+	def init_pool(self, max_conn_cnt):
+		raise NotImplementedError 
+
+class sqllite(db_base):
 	'''this is the sqllite database'''
 	
+	self.file=None
+
 	def __init__(self, file=':memory:'):
 		'''
 		Constructor, file tell the path of the sqllite db file, 
 		default, use memory if not given 
 		'''
 		self.file=file
-		self.conn= None
 
 	def connect(self):
 		'connect to the file'
 		if self.conn: return
-		try:
-			self.conn=sqlite3.connect(self.file)
-		except sqlite3.Error, e:
-			print "sqlite3 Error :", e
-			sys.exit(1)
+		self.conn=_sqlite.connect(self.file)
 	
 	def close(self):
 		'close the connection'
-		if self.conn:
-			self.conn.commit()
-			self.conn.close()
-			self.conn=None
+		if not self.conn: return
+		self.conn.commit()
+		self.conn.close()
+		self.conn=None
 
 	def get_cursor(self):
 		'get nomal cursor, fields accessed by number, faster'
@@ -157,51 +158,47 @@ class sqllite(base):
 	
 	def get_dict_cursor(self):
 		'get dict cursor, fields accessed by name, slower'
-		return self.get_cursor()
-	
-import MySQLdb
-def addslashes(s):
-	return MySQLdb.escape_string(s)
-	
+		'not implemented yet'
+		raise NotImplementedError 	
+
 	
 class mysql(base):
-	''' mysql database '''
+	'mysql database'
 
-	def __init__(self, host="localhost", user="root", pwd="", dbname="mysql", port=3306, charset='utf8'):
-		'''Constructor'''
+	self.host='localhost'
+	self.port=3306
+	self.user='root'
+	self.pwd=''
+	self.dbname='test'
+	self.charset='utf8'
+
+	def __init__(self, host='localhost', user='root', pwd='', dbname='test', port=3306, charset='utf8'):
+		'Constructor'
 		self.host=host
 		self.port=port
 		self.user=user
 		self.pwd=pwd
 		self.dbname=dbname
 		self.charset=charset
-		self.conn=None
 		
 	def connect(self):
 		'connect to the host'
 		if self.conn: return
 		try:
-			self.conn=MySQLdb.connect(	host = self.host,
-									user = self.user,
-									passwd = self.pwd,
-									db = self.dbname)
-			
+			self.conn=_mysql.connect(host = self.host, user = self.user, passwd = self.pwd, db = self.dbname)
 			self.use_charset(self.charset)
 			self.use_db(self.dbname)
-		except MySQLdb.Error, e:
-			print "MySQL Error %d: %s" % (e.args[0], e.args[1])
-			sys.exit(1)
+		except _mysql.Error, e:
+			print "mysql error %d: %s" % (e.args[0], e.args[1])
+			raise e
 		
 	def close(self):
-		if self.conn:
-			self.conn.commit()
-			self.conn.close()
-			self.conn=None
+		if not self.conn: return
+		self.conn.commit()
+		self.conn.close()
+		self.conn=None
 			
-	def refresh(self):
-		self.close()
-		self.connect()
-			
+		
 	def get_cursor(self):
 		self.check_conn()
 		return self.conn.cursor()
@@ -236,7 +233,7 @@ class mysql(base):
 	def addslashes(self, s):
 		return MySQLdb.escape_string(s)
 		
-def getdb(dburl="mysql://root:gbsoft@localhost:3306/dbname"):
+def get_db(dburl="mysql://root:gbsoft@localhost:3306/dbname"):
 	'''
 	db generator
 	'''
@@ -275,6 +272,9 @@ def getdb(dburl="mysql://root:gbsoft@localhost:3306/dbname"):
 		return None
 	else:
 		raise Exception("bad db type")
+
+def get_pooled_db():
+	pass
 
 if __name__=='__main__':
 #	conn = sqlite3.connect('/tmp/example')

@@ -3,7 +3,7 @@
 from algorithm import *
 from arg import *
 from bin import *
-from db import getdb, addslashes
+from db import get_db, get_pooled_db
 from dbg import *
 from dist import *
 from timeutil import *
