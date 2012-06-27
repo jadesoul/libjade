@@ -1,0 +1,100 @@
+#!/usr/bin/env python
+#coding:utf8
+
+'''
+Notepad++的智能运行脚本 by Jadesoul @ 2011年3月24日19:26:35
+
+在NPP中只需要按F5即可自动根据扩展名选择相应的程序运行当前文件
+安装方法：
+1. 将本脚本放入电脑的PATH路径下
+2. 配置Notepad++的运行,输入:
+	smartlaunch.py "$(FULL_CURRENT_PATH)"
+   保存，快捷键配置成F5，原来的F5可以改Ctrl+F5
+3. 配置菜单中 插件 -> NppExec选择 Follow $(FULL_CURRENT_PATH)
+'''
+
+import os, sys
+argc=len(sys.argv)
+
+usage='Usage: s <file>'
+if argc<2:
+    print usage
+    sys.exit()
+
+
+for i in range(argc):
+	print i, sys.argv[i]
+
+
+v=sys.argv
+
+
+a=v[0]
+b=v[1]
+(parent, name)=os.path.split(b)
+(badpth, ext)=os.path.splitext(b)
+params='" "'.join(v[1:])
+params='"'+params+'"'
+if ext=='.py':
+	cmd='ipython -i '+params
+	# cmd='pyshell '+params
+elif ext=='.pyw':
+	# cmd='python -i '+params
+	cmd='pyshell '+params
+elif ext=='.cmd' or ext=='.bat':
+	cmd='cmd /k '+params
+elif ext=='.asm':
+	cmd='nasm '+params
+elif ext=='.s':
+	cmd='gcc '+params+' -o '+name+'.exe & '+name+'.exe & pause'
+elif ext=='.hpp' and b.startswith(r'E:\svnprojects-local\jadesoulpp\include'):
+	cppfp=b.replace(r'E:\svnprojects-local\jadesoulpp\include', r'E:\svnprojects-local\jadesoulpp\tests')
+	cppfp=cppfp[:-3]+'cpp'
+	d, n=os.path.split(cppfp)
+	if not os.path.exists(d):
+		os.makedirs(d)
+	if not os.path.exists(cppfp):
+		os.system('cd %s & newcpp.py %s' % (d, n))
+		os.system('cd %s & n %s' % (d, n))
+	else:
+		os.system('cd %s & python launch-build.py' % 'E:\svnprojects-local\jadesoulpp')
+		target_dir=d.replace(r'E:\svnprojects-local\jadesoulpp', r'E:\svnprojects-local\jadesoulpp\bin')
+		target_fp=target_dir+'/'+n[:-4]
+		print 'now running program{'
+		os.system('cd %s & %s' % (target_dir, target_fp))
+		raw_input("\n} finished \npress any key to exit...")
+	exit()
+elif ext=='.cpp' and b.startswith(r'E:\svnprojects-local\jadesoulpp\tests'):
+	cppfp=b
+	d, n=os.path.split(cppfp)
+	os.system('cd %s & python launch-build.py' % 'E:\svnprojects-local\jadesoulpp')
+	target_dir=d.replace(r'E:\svnprojects-local\jadesoulpp', r'E:\svnprojects-local\jadesoulpp\bin')
+	target_fp=target_dir+'/'+n[:-4]
+	print 'now running program{'
+	os.system('cd %s & %s' % (target_dir, target_fp))
+	raw_input("\n} finished \npress any key to exit...")
+	exit()
+elif ext=='.hpp' and os.path.exists('main.cpp'): 
+	cmd='compilemain main.cpp > stdout.txt & n stdout.txt'
+elif ext=='.cpp':
+	cmd='compilecpp '+params
+	# cmd='compilecppusinggcc '+params
+	if name=='main.cpp':
+		cmd='compilemain '+params+' > stdout.txt & n stdout.txt'
+elif ext=='.txt':
+	cmd='explorer '+params
+elif ext=='.php':
+	cmd='php '+params+' & pause'
+elif ext=='.sh':
+	cmd='bash '+params+' & pause'
+elif ext=='.rst':
+	cmd='cd D:\MASCrawlerAdmin\document\doc-using-sphinx & build.cmd'	
+else:
+	print 'bad parameters'
+	raw_input('press any key to exit...')
+	sys.exit(1)
+
+print 'run:', cmd
+os.system(cmd)
+
+

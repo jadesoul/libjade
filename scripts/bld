@@ -1,0 +1,98 @@
+#!/usr/bin/env python
+#coding:utf8
+
+'''
+jadesoul's building system
+support windows, linux
+'''
+
+from libjade import *
+
+print 'argc=', argc
+print 'argv=', argv
+
+
+tmp_cmake_file='''cmake_minimum_required(VERSION 2.6)
+# add_subdirectory(src bin)
+project (jadesoul)
+
+find_package(Boost REQUIRED)
+set(Boost_USE_STATIC_LIBS ON)
+
+include_directories(${Boost_INCLUDE_DIRS})
+link_directories(${Boost_LIBRARY_DIRS})
+
+set (SRCS jadesoul.cpp)
+# set (UNIT_TEST_SRCS unit_test.cpp)
+# set (CMAKE_EXE_LINKER_FLAGS -lboost_iostreams)
+
+add_executable (jadesoul ${SRCS})
+
+# add_custom_command(
+	# TARGET jadesoul
+	# POST_BUILD
+	# COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/jadesoul
+	# WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+	# COMMENT "Postbuild action"
+# )
+'''
+
+cmake_file_name='CMakeLists.txt'
+if not exists(cmake_file_name):
+	fwrite(tmp_cmake_file, cmake_file_name)
+	print 'default', cmake_file_name, 'is generated'
+	run('n '+cmake_file_name)
+	exit(0)
+
+#constants
+supported_types='nmake, gnumake, mingw, msvc'.split(', ')
+cmake_generators='''
+NMake Makefiles
+Unix Makefiles
+MinGW Makefiles
+Visual Studio 10
+'''.strip().split('\n')
+
+#detect os type
+os_type='windows' if os.name=='nt' else ('linux' if os.name=='posix' else 'default')
+
+#detect build type
+build_type='default'
+
+if (argc>2):
+	print '''Usage: 
+	build.py [type]
+	
+type can be '''+', '.join(supported_types)+'''
+if type is not specified, it will be defalt value:
+	gnumake in linux
+	msvc in windows
+'''
+	sys.exit(0)
+elif (argc==1):
+	build_type='msvc' if os_type=='windows' else 'gnumake'
+else:
+	type=argv[1]
+	build_type=type if type in supported_types else 'mingw'
+
+generator=cmake_generators[supported_types.index(build_type)]
+
+print 'os_type=', os_type
+print 'build_type=', build_type
+print 'generator=', generator
+
+try:
+	# build_dir=join(cwd(), 'build')
+	build_dir=join('build', os_type)
+	build_dir=join(build_dir, build_type)
+	if not exists(build_dir): mds(build_dir)
+	os.chdir(build_dir)
+	run('cmake ../../../ -G "%s"' % generator)
+	cmds=''
+	if (build_type=='msvc'): run('call msvc & for %i in (*.sln) do msbuild %i')
+	elif (build_type=='gnumake'): run('make')
+	elif (build_type=='nmake'): run('call msvc & nmake')
+	elif (build_type=='mingw'): run('make')
+except Exception, e:
+	print 'Error:', e
+
