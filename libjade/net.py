@@ -11,7 +11,7 @@ def get_host_ips():
 	return socket.gethostbyaddr(get_host_name())[-1]
 
 def get_host_ip():
-	return get_host_ips[0]
+	return get_host_ips()[0]
 
 def get_ip_by_host(host, ex=False):
 	if not ex:
