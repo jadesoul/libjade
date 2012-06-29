@@ -44,7 +44,7 @@ class db_base:
 	def run(self, sql):
 		cursor=self.get_cursor()
 		cursor.execute(sql)
-		ret=-1987617
+		ret=None
 		if sql.strip()[:6].lower()=='insert':
 			try:
 				insert_id=self.conn.insert_id()
@@ -85,6 +85,10 @@ class db_base:
 		'''select * from table'''
 		return self.all("select * from "+table)
 	
+	def table_dict(self, table):
+		'''select * from table'''
+		return self.all_dict("select * from "+table)
+		
 	def count(self, sql):
 		'''return the count influenced by the opertion sql'''
 		return self.run(sql)
@@ -132,7 +136,6 @@ class db_base:
 class pooled_base:
 	def __init__(self):
 		self.pool=None
-		pass
 		
 	def get_conn_from_pool(self):
 		raise NotImplementedError
@@ -144,7 +147,6 @@ class sqlite(db_base):
 		default, use memory if not given'''
 		db_base.__init__(self)
 		self.file=file
-		print 'file=', file
 		
 	def connect(self):
 		'''connect to the file'''
@@ -190,7 +192,14 @@ class mysql(db_base):
 		'''connect to the host'''
 		if self.conn: return
 		try:
-			self.conn=_mysql.connect(host = self.host, user = self.user, passwd = self.passwd, db = self.dbname, port=self.port, charset=self.charset, unix_socket=self.unix_socket)
+			if self.unix_socket:
+				self.conn=_mysql.connect(host = self.host, user = self.user, \
+					passwd = self.passwd, db = self.dbname, port=self.port, \
+					charset=self.charset, unix_socket=self.unix_socket)
+			else:
+				self.conn=_mysql.connect(host = self.host, user = self.user, \
+					passwd = self.passwd, db = self.dbname, port=self.port, \
+					charset=self.charset)
 		except _mysql.Error, e:
 			print "mysql error %s: %s" % (e.args, e.message)
 			raise e
@@ -244,7 +253,8 @@ class pooled_mysql(mysql, pooled_base):
 			host='localhost', user='root', passwd='', dbname='test', \
 			port=3306, charset='utf8', unix_socket=None):
 		'''Constructor'''
-		# PooledDB parameters
+		mysql.__init__(self, host, user, passwd, dbname, port, charset, unix_socket)
+		
 		self.creator=_mysql
 		self.mincached=mincached
 		self.maxcached=maxcached
@@ -252,34 +262,38 @@ class pooled_mysql(mysql, pooled_base):
 		self.maxconnections=maxconnections
 		self.blocking=blocking
 		
-		# MySQLdb parameters
-		self.host=host
-		self.user=user
-		self.passwd=passwd
-		self.dbname=dbname
-		self.port=port
-		self.charset=charset
-		self.unix_socket=unix_socket
+		pooled_base.__init__(self)
 		
 		# init pool
-		self.pool=pooled(self.creator, self.mincached, self.maxcached, \
+		if unix_socket:
+			self.pool=pooled(self.creator, self.mincached, self.maxcached, \
 					self.maxshared, self.maxconnections, self.blocking, \
-					host = self.host, user = self.user, passwd = self.passwd, db = self.dbname, port=self.port, charset=self.charset, unix_socket=self.unix_socket)
+					host = self.host, user = self.user, passwd = self.passwd, \
+					db = self.dbname, port=self.port, charset=self.charset, \
+					unix_socket=self.unix_socket)
+		else:
+			self.pool=pooled(self.creator, self.mincached, self.maxcached, \
+					self.maxshared, self.maxconnections, self.blocking, \
+					host = self.host, user = self.user, passwd = self.passwd, \
+					db = self.dbname, port=self.port, charset=self.charset)
 					
 	def get_conn_from_pool(self):
-		return pool.connection()
+		return self.pool.connection()
 		
 	def get_conn(self):
 		return self.get_conn_from_pool()
 
 def get_db(dburl="mysql://root:gbsoft@localhost:3306/dbname", unix_socket=None, charset='utf8', pooled=False, mincached=50, maxcached=100, maxshared=0, maxconnections=500, blocking=False):
-	''' 
+	'''
 	db generator, return a db instance from the db url
+	
 	db url examples:
 		mysql://root:gbsoft@localhost:3306/dbname
 		sqlserver://admin:gbsoft@localhost/dbname
 		sqlite:///home/jadesoul/a.db
 		access://E:/mydb/c.mdb
+	
+	only when the pooled is True, the following parameters will be considered
 	'''
 	info=parse(dburl)
 	type=info.scheme
@@ -300,15 +314,36 @@ def get_db(dburl="mysql://root:gbsoft@localhost:3306/dbname", unix_socket=None, 
 				return mysql(host=host, user=user, passwd=passwd, dbname=dbname, port=port, charset=charset, unix_socket=unix_socket)
 
 if __name__=='__main__':
+	print '-----------------------------------------------test sqlite in memory'
 	db=sqlite()
 	print db.run('create table gb( id int, name varchar(10))')
 	print db.insert('gb', '(id, name)', '(1, "jadesoul")')
 	print db.table('gb')
 	print db.run('drop table gb')
 	
+	print '-----------------------------------------------test sqlite in filesystem'
 	db=sqlite('/tmp/example.db')
-	print db.run('create table gb( id int, name varchar(10))')
+	print db.run('create table gb( id int, name varchar(10), primary key(id))')
 	print db.insert('gb', '(id, name)', '(1, "jadesoul")')
 	print db.table('gb')
 	print db.run('drop table gb')
+	
+	print '-----------------------------------------------test mysql'
+	db=get_db('mysql://root:gbsoft@localhost:3306/mysql')
+	print db.table('user')
+	print db.table_dict('user')
+	sql='select host, user from user'
+	print db.all(sql)
+	print db.all_dict(sql)
+	print db.one(sql)
+	print db.one_dict(sql)
+
+	print '-----------------------------------------------test pooled mysql'
+	db=get_db('mysql://root:gbsoft@localhost:3306/mysql', pooled=1)
+	for i in xrange(1000000):
+		sql='select host, user from user'
+		print db.all(sql)
+		print db.all_dict(sql)
+		print db.one(sql)
+		print db.one_dict(sql)
 	
