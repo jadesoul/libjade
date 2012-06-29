@@ -29,4 +29,4 @@ add_executable (jadesoul ${SRCS})
 cmake_file_name='CMakeLists.txt'
 if not exists(cmake_file_name):
 	fwrite(tmp_cmake_file, cmake_file_name)
-	run('n '+cmake_file_name)
+	run('vi '+cmake_file_name)
