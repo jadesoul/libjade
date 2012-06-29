@@ -6,9 +6,7 @@ import sqlite3 as _sqllite
 
 from DBUtils.PooledDB import PooledDB as pooled
 
-
 class db_base:
-	
 	self.conn=None
 	self.cursor=None
 
@@ -124,7 +122,7 @@ class pooled_base:
 	self.pool=None
 	self.max_conn_cnt=0
 
-	def init_pool(self, max_conn_cnt):
+	def init_pool(self, **kwargs):
 		raise NotImplementedError 
 
 class sqllite(db_base):
@@ -135,7 +133,7 @@ class sqllite(db_base):
 	def __init__(self, file=':memory:'):
 		'''
 		Constructor, file tell the path of the sqllite db file, 
-		default, use memory if not given 
+		default, use memory if not given
 		'''
 		self.file=file
 
