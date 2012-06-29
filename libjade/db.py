@@ -7,7 +7,7 @@ import sqlite3 as _sqlite		# for SQLite
 from DBUtils.PooledDB import PooledDB as pooled	# for pooling db
 from urlparse import urlparse as parse		# for parsing db url
 
-def addslashes(self, s):
+def addslashes(s):
 	return _mysql.escape_string(s)
 		
 class db_base:
@@ -41,22 +41,44 @@ class db_base:
 		'''get dict cursor, fields accessed by name, slower'''
 		raise NotImplementedError
 
+	# def run(self, sql):
+		# conn=self.get_conn()
+		# cursor=conn.cursor()
+		# cursor.execute(sql)
+		# ret=None
+		# if sql.strip()[:7].lower()=='insert ':
+			# try:
+				# insert_id=conn.insert_id()
+				# ret=insert_id
+			# except Exception, e:	#maybe is pool mode
+				# try:
+					# insert_id=conn._con._con.insert_id()
+					# ret=insert_id
+				# except Exception, e:
+					# print 'got exception in run sql, %s, %s' % (type(e), e)
+				
+		# else: 
+			# rowcnt=cursor.rowcount
+			# ret=rowcnt
+		# cursor.close()
+		# return ret
+	
 	def run(self, sql):
 		cursor=self.get_cursor()
 		cursor.execute(sql)
 		ret=None
-		if sql.strip()[:6].lower()=='insert':
+		if sql.strip()[:7].lower()=='insert ':
 			try:
-				insert_id=self.conn.insert_id()
+				insert_id=cursor.connection.insert_id()
 				ret=insert_id
-			except:
-				pass
-		else: 
+			except Exception, e:
+				print 'got exception in run sql, %s, %s' % (type(e), e)
+		else:
 			rowcnt=cursor.rowcount
 			ret=rowcnt
 		cursor.close()
 		return ret
-	
+		
 	def insert(self, table, cols, vals):
 		'''insert into table cols vals'''
 		sql="insert into %s %s values %s" % (table, cols, vals)
@@ -192,14 +214,15 @@ class mysql(db_base):
 		'''connect to the host'''
 		if self.conn: return
 		try:
+			# print 'self.charset=', self.charset
+			# print 'self.unix_socket=', self.unix_socket
+			# raw_input()
 			if self.unix_socket:
 				self.conn=_mysql.connect(host = self.host, user = self.user, \
 					passwd = self.passwd, db = self.dbname, port=self.port, \
 					charset=self.charset, unix_socket=self.unix_socket)
 			else:
-				self.conn=_mysql.connect(host = self.host, user = self.user, \
-					passwd = self.passwd, db = self.dbname, port=self.port, \
-					charset=self.charset)
+				self.conn=_mysql.connect(host = self.host, user = self.user, passwd = self.passwd, db = self.dbname, port=self.port, charset=self.charset)
 		except _mysql.Error, e:
 			print "mysql error %s: %s" % (e.args, e.message)
 			raise e
@@ -281,9 +304,10 @@ class pooled_mysql(mysql, pooled_base):
 		return self.pool.connection()
 		
 	def get_conn(self):
-		return self.get_conn_from_pool()
+		self.conn=self.get_conn_from_pool()
+		return self.conn
 
-def get_db(dburl="mysql://root:gbsoft@localhost:3306/dbname", unix_socket=None, charset='utf8', pooled=False, mincached=50, maxcached=100, maxshared=0, maxconnections=500, blocking=False):
+def get_db(dburl="mysql://root:gbsoft@localhost:3306/dbname", pooled=False, unix_socket=None, charset='utf8', mincached=50, maxcached=100, maxshared=0, maxconnections=500, blocking=False):
 	'''
 	db generator, return a db instance from the db url
 	
@@ -306,7 +330,8 @@ def get_db(dburl="mysql://root:gbsoft@localhost:3306/dbname", unix_socket=None, 
 		user=info.username
 		passwd=info.password
 		dbname=info.path[1:]
-		port=info.port		
+		port=info.port
+		
 		if type=='mysql': 
 			if pooled:
 				return pooled_mysql(mincached=mincached, maxcached=maxcached, maxshared=maxshared, maxconnections=maxconnections, blocking=blocking, host=host, user=user, passwd=passwd, dbname=dbname, port=port, charset=charset, unix_socket=unix_socket)
@@ -329,7 +354,7 @@ if __name__=='__main__':
 	print db.run('drop table gb')
 	
 	print '-----------------------------------------------test mysql'
-	db=get_db('mysql://root:gbsoft@localhost:3306/mysql')
+	db=get_db('mysql://root:@localhost:3306/mysql')
 	print db.table('user')
 	print db.table_dict('user')
 	sql='select host, user from user'
@@ -339,9 +364,9 @@ if __name__=='__main__':
 	print db.one_dict(sql)
 
 	print '-----------------------------------------------test pooled mysql'
-	db=get_db('mysql://root:gbsoft@localhost:3306/mysql', pooled=1)
-	for i in xrange(1000000):
-		sql='select host, user from user'
+	db=get_db('mysql://root:@localhost:3306/centig_sns_filesystem', pooled=1)
+	for i in xrange(20):
+		sql='select * from vfiles where id=1'
 		print db.all(sql)
 		print db.all_dict(sql)
 		print db.one(sql)
