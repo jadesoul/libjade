@@ -4,7 +4,7 @@ import threading,time,datetime, MySQLdb, DBUtils
 from DBUtils.PooledDB import PooledDB
 
 pool = PooledDB(MySQLdb,100,50,100,490,False,
-	host='localhost',user='root',passwd='gbsoft',db='test',
+	host='localhost',user='root',passwd='gbsoft',db='mysql',
 	charset='utf8')
 
 class MyThread(threading.Thread, object):
@@ -25,6 +25,6 @@ class MyThread(threading.Thread, object):
 if __name__=='__main__':
 	for i in range(100):  
 		obj = MyThread(str(i))  
-		obj.start() 
+		#obj.start() 
 
 
