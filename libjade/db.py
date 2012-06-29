@@ -1,11 +1,29 @@
 #coding:utf8
 
-import MySQLdb as _mysql	# for MySQL
-import sqlite3 as _sqlite		# for SQLite
-# import pymssql as _mssql	# for MSSQL Server
+from os import system as run
 
-from DBUtils.PooledDB import PooledDB as pooled	# for pooling db
-from urlparse import urlparse as parse		# for parsing db url
+# for MySQL
+try:
+	import MySQLdb as _mysql
+except:
+	run('sudo apt-get install pip-install; sudo pip install MySQLdb')
+	import MySQLdb as _mysql
+
+# for SQLite
+import sqlite3 as _sqlite
+
+# for MSSQL Server
+# import pymssql as _mssql
+
+# for pooling db
+try:
+	from DBUtils.PooledDB import PooledDB as pooled
+except:
+	run('sudo apt-get install pip-install; sudo pip install DBUtils')
+	from DBUtils.PooledDB import PooledDB as pooled
+
+# for parsing db url
+from urlparse import urlparse as parse
 
 def addslashes(s):
 	return _mysql.escape_string(s)
