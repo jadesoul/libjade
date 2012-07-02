@@ -1,6 +1,7 @@
 #coding:utf8
 
-import sys, urllib, urllib2, re, socket
+import sys, urllib, urllib2, re, socket, urlparse
+from urlparse import urlsplit as split_url
 
 re_host=re.compile("^(http|https|ftp)://(([\w\-]+\.)+[\w\-]+|localhost)/?")
 
@@ -97,15 +98,30 @@ def post_data(url, data='', headers={'User-agent':'Mozilla/4.0 (compatible; MSIE
 	# real_host=req.get_host()
 	return html#, real_url, real_host
 	
-def get_host_by_url(url):
+def parse_url(url):
+	'''
+	usage:
+		url='http://www.abc.com/a/b/c.html?a=1&b=2#tag'
+		protcal, netloc, host, port, user, pwd, path, query, anchor=parse_url(url)
+	'''
+	p=urlparse.urlsplit(url)
+	return p.scheme, p.netloc, p.hostname, p.port, p.username, p.password, p.path, p.query, p.fragment
+	
+def get_host_by_url_v1(url):
 	m=re_host.findall(url)
 	if len(m)!=1: return None
 	return m[0][1]
+	
+def get_host_by_url_v2(url):
+	protcal, netloc, host, port, user, pwd, path, params, query, anchor=parse_url(url)
+	return host
 
-def get_host_by_url_ex(url):
+def get_host_by_url_v3(url):
 	req=urllib2.Request(url)
 	return req.get_host()
 	
+get_host_by_url=get_host_by_url_v2
+
 def get_html_by_host(host_name):
 	url="http://"+host_name
 	return get_html_by_url(url)
@@ -142,7 +158,7 @@ def strip_url_tail(url):
 	url=strip_url_query_str(url)
 	return strip_url_anchor(url)
 	
-def get_file_type_by_url(url):
+def get_file_type_by_url_old(url):
 	url=strip_url_tail(url)
 	pos=url.rfind('.')
 	if pos==-1: return 'dir'
@@ -157,7 +173,7 @@ def get_file_type_by_url(url):
 		return 'bad'
 		
 from mimetype import get_mimetype_by_ext
-def get_file_type_by_url_ex(url):
+def get_file_type_by_url(url):
 	url=strip_url_tail(url)
 	if url.count('/')==2: return 'html'	# for only host
 	pos=url.rfind('.')
@@ -244,7 +260,7 @@ r_goodlink=re.compile('^[^(mailto://)(javascript:)].+$', re.I)
 def nice_url(page, urls):
 	#将当前页面的所有链接进行优化: 对相对链接补全，展开，根目录链接转换
 	page=page.strip()
-	site_host=get_host_by_url(page)
+	site_host=get_host_by_url_ex(page)
 	# print 'site_host:', site_host
 	page=strip_url_tail(page)
 	type=get_file_type_by_url(page)
@@ -261,9 +277,42 @@ def nice_url(page, urls):
 def one_nice_url(page, url):
 	return nice_url(page, [url])[0]
 
+def fix_url(url, charset='utf-8'):
+	'''Sometimes you get an URL by a user that just isn't a real
+	URL because it contains unsafe characters like ' ' and so on.  This
+	function can fix some of the problems in a similar way browsers
+	handle data entered by the user:
+
+	>>> url_fix(u'http://de.wikipedia.org/wiki/Elf (Begriffsklärung)')
+	'http://de.wikipedia.org/wiki/Elf%20%28Begriffskl%C3%A4rung%29'
+
+	:param charset: The target charset for the URL if the url was
+		    given as unicode string.
+	'''
+	if isinstance(url, unicode): url =url.encode(charset, 'ignore')
+	scheme, netloc, path, qs, anchor = urlparse.urlsplit(url)
+	path = urllib.quote(path, '/%')
+	qs = urllib.quote_plus(qs, ':&=')
+	return urlparse.urlunsplit((scheme, netloc, path, qs, anchor))
+    
 if __name__=='__main__':
 	print url_merge_dots('http/://a.a//../../asd/kk/../../../asd.asd/./ss/./././hsadk...$?1=1#kasjdl-qw')
-
+	print 
+	page='http://jadesoul-home'
+	urls=u'''
+		http://jadesoul-home/index.php
+		http://jadesoul-home/?p=30
+		a.html
+		a/b/c/d.txt
+		a/b/../c/d.txt
+	'''.split()
+	print nice_url(page, urls)
 	
-	
+	# protcal, netloc, host, port, user, pwd, path, query, anchor=parse_url(url)
+	print parse_url('http://www.ABC.com/a/b/c.html 1?a=1&b=2#tag')
+	print parse_url('https://www.ABC.com:8080/a/b/c.html 1?a=1&b=2#tag')
+	print parse_url('smtp://www.ABC.com:8080/a/b/c.html 1?a=1&b=2#tag')
+	print parse_url('http://jadesoul:123@jadesoul-dev:8090/a/b/c.html?a=1&b=2#tag')
+	print parse_url('ftp://jadesoul:123@jadesoul-dev:8090/a/b/c.html?a=1&b=2#tag')
+	print parse_url('ssh://jadesoul:123@jadesoul-dev:8090/a/b/c.html?a=1&b=2#tag')
 	

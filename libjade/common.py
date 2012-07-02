@@ -21,7 +21,7 @@ from mem import *
 from url import *
 from mimetype import *
 from utils import *
-from htmlparser import extract_body_text,  parse as parse_html
+from htmlparser import extract_body_text,  parse_html
 
 import log
 from log import Logger, debug, info, warn, error, critical

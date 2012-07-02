@@ -103,7 +103,7 @@ def replace_htmlentities(s):
 		s=s.replace(en, ch).replace(num, ch)
 	return s
 
-def parse(html):
+def parse_html(html):
 	return BeautifulSoup(html)
 	
 def extract_body_text(html, rate=1):
