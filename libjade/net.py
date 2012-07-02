@@ -1,7 +1,9 @@
 #coding:utf8
 
 import sys, urllib, urllib2, re, socket, urlparse
-from urlparse import urlsplit as split_url
+from urlparse import urlsplit, urlunsplit, urlparse, urlunparse, urljoin, urldefrag
+from urlnorm import norm as normalize_url
+from os.path import dirname
 
 re_host=re.compile("^(http|https|ftp)://(([\w\-]+\.)+[\w\-]+|localhost)/?")
 
@@ -104,7 +106,7 @@ def parse_url(url):
 		url='http://www.abc.com/a/b/c.html?a=1&b=2#tag'
 		protcal, netloc, host, port, user, pwd, path, query, anchor=parse_url(url)
 	'''
-	p=urlparse.urlsplit(url)
+	p=urlsplit(url)
 	return p.scheme, p.netloc, p.hostname, p.port, p.username, p.password, p.path, p.query, p.fragment
 	
 def get_host_by_url_v1(url):
@@ -113,7 +115,7 @@ def get_host_by_url_v1(url):
 	return m[0][1]
 	
 def get_host_by_url_v2(url):
-	protcal, netloc, host, port, user, pwd, path, params, query, anchor=parse_url(url)
+	protcal, netloc, host, port, user, pwd, path, query, anchor=parse_url(url)
 	return host
 
 def get_host_by_url_v3(url):
@@ -260,7 +262,7 @@ r_goodlink=re.compile('^[^(mailto://)(javascript:)].+$', re.I)
 def nice_url(page, urls):
 	#将当前页面的所有链接进行优化: 对相对链接补全，展开，根目录链接转换
 	page=page.strip()
-	site_host=get_host_by_url_ex(page)
+	site_host=get_host_by_url(page)
 	# print 'site_host:', site_host
 	page=strip_url_tail(page)
 	type=get_file_type_by_url(page)
@@ -273,6 +275,29 @@ def nice_url(page, urls):
 	urls=[l if l.startswith('http://') or l.startswith('ftp://') or l.startswith('https://') else (root_url+l if l[0]=='/' else parent_url+l) for l in urls]
 	urls=[strip_url_anchor(url_merge_dots(l)) for l in urls]
 	return urls
+	
+def base_url(url):
+	protocal, netloc, path, params, query, anchor=urlparse(url)
+	path=dirname(path)
+	tpl=protocal, netloc, path, params, query, anchor
+	return urlunparse(tpl)
+	
+def expand_urls(page, urls):
+	'''
+	expand all urls in the page
+	'''
+	parent=base_url(page.strip())
+	print 'parent=', parent
+	urls=[urljoin(parent, url.strip()) for url in urls]
+	rets=[]
+	for url in urls:
+		try:
+			nurl=normalize_url(url)
+		except Exception, e:
+			print 'error when normalize_url %s : %s', (url, e)
+			continue
+		rets.append(nurl)
+	return rets
 	
 def one_nice_url(page, url):
 	return nice_url(page, [url])[0]
@@ -296,8 +321,10 @@ def fix_url(url, charset='utf-8'):
 	return urlparse.urlunsplit((scheme, netloc, path, qs, anchor))
     
 if __name__=='__main__':
-	print url_merge_dots('http/://a.a//../../asd/kk/../../../asd.asd/./ss/./././hsadk...$?1=1#kasjdl-qw')
-	print 
+	url='http://a.a//../../asd/kk/../../../asd.asd/./ss/./././hsadk...$?1=1#kasjdl-qw'
+	print url_merge_dots(url)
+	print normalize_url(url)
+	
 	page='http://jadesoul-home'
 	urls=u'''
 		http://jadesoul-home/index.php
@@ -305,8 +332,21 @@ if __name__=='__main__':
 		a.html
 		a/b/c/d.txt
 		a/b/../c/d.txt
-	'''.split()
-	print nice_url(page, urls)
+		http://a.a//../../asd/kk/../../../asd.asd/./ss/./././hsadk...$?1=1#kasjdl-qw
+		https://www.abc.com./a.txt
+		http://www.abc.com:80/a.txt
+		https://www.abc.com.:8080/a.txt
+		ftp://www.abc.com:21/a.txt
+		ftp://www.abc.com:21/a.txt
+		ftp://www.abc.com:21/ a.txt
+	'''.strip().split('\n')
+	print '----------------------------------nice_url'
+	for i in nice_url(page, urls):
+		print i
+	print '----------------------------------expand_urls'
+	for i in expand_urls(page, urls):
+		print i
+	print
 	
 	# protcal, netloc, host, port, user, pwd, path, query, anchor=parse_url(url)
 	print parse_url('http://www.ABC.com/a/b/c.html 1?a=1&b=2#tag')
