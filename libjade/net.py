@@ -1,7 +1,7 @@
 #coding:utf8
 
 import sys, urllib, urllib2, re, socket, urlparse
-from urlparse import urlsplit, urlunsplit, urlparse, urlunparse, urljoin, urldefrag
+from urlparse import urlsplit, urlunsplit, urlunparse, urljoin, urldefrag
 from urlnorm import norm as normalize_url
 from os.path import dirname
 
@@ -277,7 +277,7 @@ def nice_url(page, urls):
 	return urls
 	
 def base_url(url):
-	protocal, netloc, path, params, query, anchor=urlparse(url)
+	protocal, netloc, path, params, query, anchor=urlparse.urlparse(url)
 	path=dirname(path)
 	tpl=protocal, netloc, path, params, query, anchor
 	return urlunparse(tpl)
