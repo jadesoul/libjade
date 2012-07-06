@@ -166,3 +166,19 @@ def clonedirs(src, dst):
 			dp=join(rp, d)
 			print dp
 			md(dp)
+			
+def getstat(fp):
+	'''
+	get the stat info of a file path
+	'''
+	info=os.stat(fp)
+	return info.st_size, info.st_atime, info.st_mtime, info.st_ctime
+	
+def fatime(fp):
+	return os.path.getatime(fp)
+	
+def fmtime(fp):
+	return os.path.getmtime(fp)
+	
+def fctime(fp):
+	return os.path.getctime(fp)
