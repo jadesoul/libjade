@@ -162,7 +162,7 @@ class db_base:
 		cursor=self.get_cursor()
 		cursor.execute(sql)
 		rows=cursor.fetchall()
-		cursor.close ()
+		cursor.close()
 		return rows
 	
 	def all_dict(self, sql):
@@ -232,6 +232,7 @@ class mysql(db_base):
 		'''connect to the host'''
 		if self.conn: return
 		try:
+			print 'self.host=', self.host
 			# print 'self.charset=', self.charset
 			# print 'self.unix_socket=', self.unix_socket
 			# raw_input()
@@ -240,6 +241,7 @@ class mysql(db_base):
 					passwd = self.passwd, db = self.dbname, port=self.port, \
 					charset=self.charset, unix_socket=self.unix_socket)
 			else:
+				# print 'self.host=', self.host
 				self.conn=_mysql.connect(host = self.host, user = self.user, passwd = self.passwd, db = self.dbname, port=self.port, charset=self.charset)
 		except _mysql.Error, e:
 			print "mysql error %s: %s" % (e.args, e.message)
@@ -364,15 +366,15 @@ if __name__=='__main__':
 	print db.table('gb')
 	print db.run('drop table gb')
 	
-	print '-----------------------------------------------test sqlite in filesystem'
-	db=sqlite('/tmp/example.db')
-	print db.run('create table gb( id int, name varchar(10), primary key(id))')
-	print db.insert('gb', '(id, name)', '(1, "jadesoul")')
-	print db.table('gb')
-	print db.run('drop table gb')
+	# print '-----------------------------------------------test sqlite in filesystem'
+	# db=sqlite('/tmp/example.db')
+	# print db.run('create table gb( id int, name varchar(10), primary key(id))')
+	# print db.insert('gb', '(id, name)', '(1, "jadesoul")')
+	# print db.table('gb')
+	# print db.run('drop table gb')
 	
 	print '-----------------------------------------------test mysql'
-	db=get_db('mysql://root:@localhost:3306/mysql')
+	db=get_db('mysql://root:gbsoft@localhost:3306/mysql')
 	print db.table('user')
 	print db.table_dict('user')
 	sql='select host, user from user'
@@ -381,12 +383,12 @@ if __name__=='__main__':
 	print db.one(sql)
 	print db.one_dict(sql)
 
-	print '-----------------------------------------------test pooled mysql'
-	db=get_db('mysql://root:@localhost:3306/centig_sns_filesystem', pooled=1)
-	for i in xrange(20):
-		sql='select * from vfiles where id=1'
-		print db.all(sql)
-		print db.all_dict(sql)
-		print db.one(sql)
-		print db.one_dict(sql)
+	# print '-----------------------------------------------test pooled mysql'
+	# db=get_db('mysql://root:@localhost:3306/centig_sns_filesystem', pooled=1)
+	# for i in xrange(20):
+		# sql='select * from vfiles where id=1'
+		# print db.all(sql)
+		# print db.all_dict(sql)
+		# print db.one(sql)
+		# print db.one_dict(sql)
 	
