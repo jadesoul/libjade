@@ -1,5 +1,7 @@
 #coding:utf8
 
+import traceback
+
 #type detect
 def is_dict(dct):
 	return type(dct) is dict
@@ -106,5 +108,5 @@ def dump_list(l):
 	for i in l:
 		print i		
 if __name__=='__main__':
-	pass
+	dump(dir())
 

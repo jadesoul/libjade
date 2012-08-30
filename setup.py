@@ -2,6 +2,7 @@
 from distutils import sysconfig
 from distutils.core import setup
 from os import listdir, getcwd
+from os.path import isfile
 
 # generate pth file
 f=open('libjade.pth', 'w')
@@ -19,6 +20,6 @@ setup(
 	url='http://jadesoul.sinaapp.com/',
 	license='Python Software Foundation License',
 	# packages=['libjade'], # install a pth file instead of a package for debug
-	scripts=['scripts/'+i for i in listdir('scripts')],
+	scripts=filter(isfile, ['scripts/'+i for i in listdir('scripts')]),
 	data_files=[(site_packages_path, ["libjade.pth"])]
 )

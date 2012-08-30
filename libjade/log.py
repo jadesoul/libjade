@@ -3,7 +3,8 @@
 import logging, sys
 
 message_format='%(name)-8s %(asctime)s %(levelname)-8s %(message)s'
-time_format='%a, %d %b %Y %H:%M:%S'
+# time_format='%a, %d %b %Y %H:%M:%S'
+time_format='[%Y-%m-%d %a %H:%M:%S]'
 default_formatter=logging.Formatter(message_format, time_format)
 
 # Logging有如下级别: DEBUG，INFO，WARNING，ERROR，CRITICAL

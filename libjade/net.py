@@ -287,7 +287,7 @@ def expand_urls(page, urls):
 	expand all urls in the page
 	'''
 	parent=base_url(page.strip())
-	print 'parent=', parent
+	# print 'parent=', parent
 	urls=[urljoin(parent, url.strip()) for url in urls]
 	rets=[]
 	for url in urls:
@@ -356,3 +356,4 @@ if __name__=='__main__':
 	print parse_url('ftp://jadesoul:123@jadesoul-dev:8090/a/b/c.html?a=1&b=2#tag')
 	print parse_url('ssh://jadesoul:123@jadesoul-dev:8090/a/b/c.html?a=1&b=2#tag')
 	
+    # print parse_url('https://www.ABC.com:8080/a/b/c.html 1?a=1&b=2#tag')

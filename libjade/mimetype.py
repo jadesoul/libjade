@@ -412,6 +412,7 @@ ext2mime_table='''
 .ra                                               audio/x-pn-realaudio-plugin
 .ra                                               audio/x-realaudio
 .ram                                              audio/x-pn-realaudio
+.rar							application/octet-stream
 .ras                                              application/x-cmu-raster
 .ras                                              image/cmu-raster
 .ras                                              image/x-cmu-raster
@@ -734,6 +735,7 @@ application/msword                                .wiz
 application/msword                                .word
 application/mswrite                               .wri
 application/netmc                                 .mcp
+application/octet-stream                          .rar
 application/octet-stream                          .exe
 application/octet-stream                          .a
 application/octet-stream                          .arc
