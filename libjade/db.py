@@ -354,7 +354,7 @@ if __name__=='__main__':
 	print db.run('drop table gb')
 	
 	print '-----------------------------------------------test mysql'
-	db=get_db('mysql://root:@localhost:3306/mysql')
+	db=get_db('mysql://root:gbsoft@192.168.1.200:3306/mysql')
 	print db.table('user')
 	print db.table_dict('user')
 	sql='select host, user from user'
