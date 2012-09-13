@@ -6,9 +6,15 @@ from timeutil import time_init, time_gap, now
 def md5(t):
 	return hashlib.md5(t).hexdigest()
 	
-# md5
+def md5_bin(t):
+	return hashlib.md5(t).digest()
+	
+# sha1
 def sha1(t):
 	return hashlib.sha1(t).hexdigest()
+	
+def sha1_bin(t):
+	return hashlib.sha1(t).digest()
 	
 if __name__=='__main__':
 	a = "a test string"

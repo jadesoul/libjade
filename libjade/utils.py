@@ -4,6 +4,9 @@ import string
 import math
 import os
 import sys
+from dbg import *
+
+
 
 # from pyquery import PyQuery as Q
 # from lxml import etree
@@ -14,11 +17,14 @@ d = Q(filename=path_to_html_file, parser='xml')#html_fragments
 '''
 
 #os detection
-from platform import system as os_type
+# from platform import system as os_type
 #system default encoding
-sys_encoding='gbk' if os_type()=='Windows' else 'utf8'
+# sys_encoding='gbk' if os_type()=='Windows' else 'utf8'
+
 windows=(os.name=='nt')
 linux=not windows
+#system default encoding
+sys_encoding='gbk' if windows else 'utf8'
 
 def mkdict(s, domain, warn=False):
 	ret={}
@@ -43,20 +49,43 @@ def format_tab(s):
 	print  '\n'.join(['\t'.join(l.split()) for l in ls])
 
 
-def U(s):
-	'''转化utf8编码的文件中的字符串为unicode'''
-	return s.decode('utf8')
+def uni(s):
+	'''自动转化字符串为unicode'''
+	if is_unicode(s): return s
+	return s.decode(sys_encoding)
 	
-def US(s):
-	'''转化utf8编码的文件中的字符串为unicode后转化成系统编码'''
-	return s.decode('utf8').encode(sys_encoding)
+def _sys(s):
+	'''自动转化成系统编码'''
+	if is_unicode(s): return s.encode(sys_encoding)
+	try:
+		s=s.decode('utf8')
+	except:
+		try:
+			s=s.decode('gbk')
+		except:
+			pass
+	assert is_unicode(s)
+	return s.encode(sys_encoding)
 
-
+def utf8(s):
+	'''如果是unicode则转化utf8编码，否则直接返回'''
+	if is_unicode(s): return s.encode('utf8')
+	return s
+	
+def gbk(s):
+	'''如果是unicode则转化gbk编码，否则直接返回'''
+	if is_unicode(s): return s.encode('gbk')
+	return s
+	
 def include(pth):
 	sys.path.append(pth)
 
 if __name__=='__main__':
 	print 'windows=', windows
 	print 'linux=', linux
-	
+	print utf8('你')
+	print utf8(u'你')
+	print _sys('你')
+	print _sys(u'你')
+	print _sys(u'你'.encode('utf8'))
 	

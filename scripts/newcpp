@@ -31,4 +31,4 @@ if fn[fn.rfind('.')+1]=='h':
 f=open(fn, 'w')
 f.write(s)
 f.close()
-os.system('n "'+fn+'"')
+os.system('vi "'+fn+'"')
