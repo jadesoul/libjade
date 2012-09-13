@@ -31,9 +31,9 @@ def time_gap(msg=None, seed=0, reset=True):
         if reset:
             global_time_seeds[seed]=now
         if not msg:
-            return '%0.3fs' % (now-last)
+            return '%0.5fs' % (now-last)
         else:
-            return '%s: %0.3fs' % (msg, now-last)
+            return '%s: %0.5fs' % (msg, now-last)
         
 def time_diff(seed1, seed2):
     global global_time_seeds

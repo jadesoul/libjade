@@ -18,6 +18,7 @@ class mysql_database(database_base):
 		conn=None
 		try:
 			conn=mysql.connect(**conf)
+			conn.autocommit(True)
 		except Exception, e:
 			print 'can not connect in mysql_database._mysql_conn_factory: %s' % e
 		assert conn
