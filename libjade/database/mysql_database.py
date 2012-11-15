@@ -68,7 +68,46 @@ class mysql_database(database_base):
 		return mysql.escape_string(s)
 	
 if __name__=='__main__':
-	pass
+	from edusns.filesystem.config import *
+	db_conf=mysql_database_conf()
+	pool_conf=database_pooling_conf()
+	
+	db1=mysql_database(db_conf)
+	db=mysql_database(db_conf)
+	for i in xrange(100):
+		# if i%100==0: print i
+		print db.conf
+		print db.conn
+		print db.addslashes('''a'b&p"m/ss''')
+		print db.get_cursor()
+		print db.conn
+		
+		print len(db.table('objects'))
+		print len(db.table_dict('objects'))
+		print db.one('select hash from objects')
+		print db.first('select hash from objects')
+		print db.one_dict('select stored_in_swift from objects')
+		print len(db.all('select * from objects'))
+		print len(db.all_dict('select * from objects'))
+		
+		
+		print 'close db'
+		db.close()
+		print db.conn
+		print db.get_conn()
+		print db.get_conn()
+		print db.get_dict_cursor()
+		print db.conn
+		print db.refresh()
+		print db.conn
+		
+		print len(db.table('objects'))
+		print len(db.table_dict('objects'))
+		print db.one('select hash from objects')
+		print db.first('select hash from objects')
+		print db.one_dict('select stored_in_swift from objects')
+		print len(db.all('select * from objects'))
+		print len(db.all_dict('select * from objects'))
 		
 		
 		

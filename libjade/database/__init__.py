@@ -13,7 +13,7 @@ if __name__=='__main__':
 	def mysql_database_conf():
 		host='localhost'
 		user='root'
-		passwd='gbsoft'
+		passwd=''
 		db='mysql'
 		# port=3306
 		charset='utf8'

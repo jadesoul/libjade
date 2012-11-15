@@ -6,7 +6,7 @@ import shutil
 from os import listdir, getcwd as cwd, chdir as cd
 # from os import readlink
 from time import sleep
-from os.path import split as splitdir, splitext, join, dirname, isfile, islink, isdir, exists
+from os.path import split as splitdir, splitext, join, dirname, isfile, islink, isdir, exists, abspath
 
 def list_all_items(root='.'):
     '''list everything in the dir'''
