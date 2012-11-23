@@ -127,9 +127,9 @@ class Mail(object):
 		smtp.close()	# or smtp.quit()
 	
 if __name__=='__main__':
-	# mail=Mail(GMailServer('wslgb2006', ''), 'wslgb2006@gmail.com', 'wslgb2006@gmail.com', '一个a email from me<h1>hello, 测试2</h1>', 'i send this email by code你好<h1>hello, 测试2</h1>', 1)
-	mail=Mail(Com163MailServer('wslgb2006', ''), 'wslgb2006@163.com', ['hokix@live.com', 'wslgb2006@163.com'], 'a email from me<h1>hello, 你好</h1>', 'i send this email by my program 你好<h1>hello, 测试2</h1><img src="https://its.pku.edu.cn/Pic_Files/v2/pku_title.jpg"/>', 1)
-	# mail=Mail(QQMailServer('wslgb2006', ''), 'wslgb2006@qq.com', 'wslgb2006@163.com', '一个a email from me', 'i send this email by code你好')
+	# mail=Mail(GMailServer('asdasdasd', ''), 'asdasdasd@gmail.com', 'asdasdasd@gmail.com', '一个a email from me<h1>hello, 测试2</h1>', 'i send this email by code你好<h1>hello, 测试2</h1>', 1)
+	mail=Mail(Com163MailServer('asdasdasd', ''), 'asdasdasd@163.com', ['hokix@live.com', 'asdasdasd@163.com'], 'a email from me<h1>hello, 你好</h1>', 'i send this email by my program 你好<h1>hello, 测试2</h1><img src="https://its.pku.edu.cn/Pic_Files/v2/pku_title.jpg"/>', 1)
+	# mail=Mail(QQMailServer('asdasdasd', ''), 'asdasdasd@qq.com', 'asdasdasd@163.com', '一个a email from me', 'i send this email by code你好')
 	mail.attach(ur'G:\照片\jadesoul.jpg')
 	mail.send()
 
