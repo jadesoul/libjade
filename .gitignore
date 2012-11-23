@@ -25,4 +25,7 @@ pip-log.txt
 
 #Mr Developer
 .mr.developer.cfg
+test.log
+test.pkl
+test.json
 
