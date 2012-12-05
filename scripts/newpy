@@ -7,7 +7,7 @@ if fn.find('.')==-1: fn+='.py'
 
 
 f=open(fn, 'w')
-f.write('''#!/usr/bin/env python
+f.write('''#!/usr/bin/python
 #coding:utf8
 
 from libjade import *

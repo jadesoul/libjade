@@ -1,6 +1,11 @@
 #coding:utf8
 
-import MySQLdb as mysql
+try:
+	import MySQLdb as mysql
+except Exception, e:
+	print 'Warnning:', e
+	mysql=None
+
 from database_base import database_base
 
 def addslashes(s):

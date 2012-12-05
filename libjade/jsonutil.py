@@ -4,24 +4,28 @@ from utils import *
 from filesys import *
 
 # import json
-# import simplejson as json
-import cjson as json
+import simplejson
+import cjson
 
 def json_encode(obj):
-    return json.encode(obj)
+	# using cjson, and fix bug of cjson encode
+    return cjson.encode(obj).replace('\\/', '/')
     
 def json_decode(s):
-    return json.decode(s)
+	# decode with cjson
+    return cjson.decode(s)
     
 def json_dump(obj, fp):
     fwrite(json_encode(obj), fp)
     
-def json_load(fp, encoding=sys_encoding):
-    return json_decode(fread(fp).decode(encoding))
+#def json_load(fp, encoding=sys_encoding):
+#    return json_decode(fread(fp).decode(encoding))
+
+def json_load(fp):
+    return json_decode(fread(fp))
 
 # another more friendly version
 def json_export(obj, is_unicode=False):
-    import simplejson
     if not is_unicode:
         s=simplejson.dumps(obj, encoding='utf8', skipkeys=False, indent=4, ensure_ascii=False)
     else:

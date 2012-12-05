@@ -1,8 +1,15 @@
 #coding:utf8
 
-import MySQLdb as mysql
-from DBUtils.PooledDB import TooManyConnections
-from DBUtils.PooledDB import PooledDB as pooled
+try:
+	import MySQLdb as mysql
+	from DBUtils.PooledDB import TooManyConnections
+	from DBUtils.PooledDB import PooledDB as pooled
+except Exception, e:
+	print 'Warnning:', e
+	mysql=None
+	TooManyConnections=None
+	pooled=None
+
 from mysql_database import mysql_database
 
 class pooled_mysql_database(mysql_database):

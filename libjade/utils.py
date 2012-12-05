@@ -6,15 +6,19 @@ import os
 import sys
 from dbg import *
 
+#try to import PyQuery
+try:
+	from pyquery import PyQuery as Q
+	#from lxml import etree
+except:
+	pass
 
-
-# from pyquery import PyQuery as Q
-# from lxml import etree
 '''
-# example:
+# usage example:
 d = Q(url='http://google.com/', parser='html')
-d = Q(filename=path_to_html_file, parser='xml')#html_fragments
+d = Q(filename=path_to_html_file, parser='xml') # html_fragments
 '''
+
 
 #os detection
 # from platform import system as os_type
