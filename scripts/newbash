@@ -1,0 +1,14 @@
+#!/usr/bin/env python
+import sys, datetime, os
+
+if len(sys.argv)<2: fn='test.sh'
+else: fn=sys.argv[1].strip()
+
+f=open(fn, 'w')
+f.write('''#!/bin/bash
+
+# bash file created by jadesoul @ %s
+
+''' % datetime.datetime.now())
+f.close()
+os.system('vi "'+fn+'"')
