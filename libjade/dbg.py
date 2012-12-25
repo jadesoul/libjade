@@ -107,6 +107,14 @@ def echo(s):
 def dump_list(l):
 	for i in l:
 		print i		
+
+import sys
+def cerr(s):
+	sys.stderr.write(s)
+
+def cout(s):
+	sys.stdout.write(s)
+
 if __name__=='__main__':
 	dump(dir())
 
