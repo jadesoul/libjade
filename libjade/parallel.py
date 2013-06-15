@@ -1,6 +1,7 @@
 #!/usr/bin/python
 #coding:utf8
 
+import multiprocessing as mp
 from multiprocessing import Pool
 
 def example_func(x):
@@ -10,7 +11,9 @@ def example_handle(results):
 	print results
 
 def parallel(func, data, handle=None):
-	pool=Pool()
+	cpus=mp.cpu_count()
+	# if cpus>5: cpus=cpus/2+1;
+	pool=Pool(processes=cpus)
 	rets=pool.map(func, data)
 	if handle:
 		handle(rets)

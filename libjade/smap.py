@@ -70,4 +70,4 @@ if __name__=='__main__':
 		print i
 	print expands(s, locals())
 	
-
+	print smap_var('a b c', locals())

@@ -19,7 +19,13 @@ d = Q(url='http://google.com/', parser='html')
 d = Q(filename=path_to_html_file, parser='xml') # html_fragments
 '''
 
-
+#try to prepare for pyx
+try:
+	import pyximport
+	pyximport.install()
+except:
+	pass
+	
 #os detection
 # from platform import system as os_type
 #system default encoding
@@ -27,6 +33,7 @@ d = Q(filename=path_to_html_file, parser='xml') # html_fragments
 
 windows=(os.name=='nt')
 linux=not windows
+
 #system default encoding
 sys_encoding='gbk' if windows else 'utf8'
 
@@ -84,6 +91,27 @@ def gbk(s):
 def include(pth):
 	sys.path.append(pth)
 
+def u8(s):
+	'''自动在utf8和unicode之间切换'''
+	if type(s) is unicode:
+		return s.encode('utf8')
+	else:
+		return s.decode('utf8')
+		
+def gb(s):
+	'''自动在utf8和gbk之间切换'''
+	if type(s) is unicode:
+		return s.encode('gbk')
+	else:
+		return s.decode('gbk')
+		
+def average(*lst):
+	l=len(lst)
+	if l==0:
+		return 0
+	else:
+		return 1.0*sum(lst)/l
+		
 if __name__=='__main__':
 	print 'windows=', windows
 	print 'linux=', linux

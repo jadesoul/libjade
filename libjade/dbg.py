@@ -110,10 +110,12 @@ def dump_list(l):
 
 import sys
 def cerr(s):
-	sys.stderr.write(s)
+	sys.stderr.write(str(s)+'\n')
 
 def cout(s):
-	sys.stdout.write(s)
+	sys.stdout.write(str(s)+'\n')
+
+clog=cerr
 
 if __name__=='__main__':
 	dump(dir())

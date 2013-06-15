@@ -60,5 +60,6 @@ if __name__=='__main__':
     print nowfn()
     time_init()
     print 1
+    print type(time_elapse())
     print time_gap('aa')
 

@@ -34,5 +34,6 @@ if __name__=='__main__':
     print o, type(o)
     print pdecode(o)
     print pwrite(o, 'test.pkl')
+    print pwrite([1, 2], 'test.pkl')
     print pread('test.pkl')
 

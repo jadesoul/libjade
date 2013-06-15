@@ -3,9 +3,13 @@
 from utils import *
 from filesys import *
 
-# import json
+try:
+	import cjson
+	json=cjson
+except:
+	import json
+
 import simplejson
-import cjson
 
 def json_encode(obj):
 	# using cjson, and fix bug of cjson encode

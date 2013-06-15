@@ -26,6 +26,8 @@ from num import *
 from htmlparser import extract_body_text,  parse_html
 from mail import MailServer, GMailServer, Com163MailServer, QQMailServer, Mail
 from parallel import parallel
+from bytes import *
+from gray import *
 
 import log
 from log import Logger, debug, info, warn, error, critical

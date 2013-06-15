@@ -4,6 +4,7 @@ import os
 import shutil
 
 from os import listdir, getcwd as cwd, chdir as cd
+pwd=cwd # an alias
 # from os import readlink
 from time import sleep
 from os.path import split as splitdir, splitext, join, dirname, isfile, islink, isdir, exists, abspath
@@ -212,5 +213,31 @@ rlistfiles=recursively_list_files
 rlistdirs=recursively_list_dirs
 clonedirs=copy_dirs_structure
 
+def iter_lines_pair(fp1, fp2):
+	f1=open(fp1)
+	f2=open(fp2)
+	while 1:
+		s1=f1.readline()
+		if not s1: break
+		s2=f2.readline()
+		if not s2: break
+		yield s1, s2
+	f1.close()
+	f2.close()
+
+def iter_lines(fp):
+	f=open(fp)
+	while 1:
+		s=f.readline()
+		if not s: break
+		yield s
+	f.close()
+	
+def enumerate_lines(fp1, fp2):
+	cnt=0
+	for s1, s2 in iter_lines_pair(fp1, fp2):
+		yield cnt, s1, s2
+		cnt+=1
+		
 if __name__=='__main__':
     print split_path(r'E:\svnprojects-local\libjade\libjade\filesys.py')
